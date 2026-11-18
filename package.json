@@ -1,0 +1,26 @@
+{
+  "name": "sharvin-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=client",
+    "dev:all": "npm run dev --workspaces",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:client": "npm run dev --workspace=client",
+    "build": "npm run build --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "prisma:generate": "prisma generate --schema=./server/prisma/schema.prisma",
+    "prisma:validate": "prisma validate --schema=./server/prisma/schema.prisma",
+    "prisma:migrate": "npm run prisma:migrate --workspace=server",
+    "prisma:seed": "npm run prisma:seed --workspace=server"
+  },
+  "devDependencies": {
+    "@prisma/client": "^6.4.1",
+    "concurrently": "^9.1.2",
+    "prisma": "^6.4.1"
+  }
+}

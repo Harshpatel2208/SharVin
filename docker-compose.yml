@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. PostgreSQL Database Service
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: sharvin_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sharvin_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sharvin_secure_prod_password_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-sharvin_prod}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sharvin_admin} -d ${POSTGRES_DB:-sharvin_prod}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sharvin_network
+
+  # ----------------------------------------------------------------------------
+  # 2. SharVin Unified Backend API & Real-Time Gateway Server
+  # ----------------------------------------------------------------------------
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sharvin_backend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sharvin_admin}:${POSTGRES_PASSWORD:-sharvin_secure_prod_password_2026}@postgres:5432/${POSTGRES_DB:-sharvin_prod}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-sharvin_production_jwt_secret_must_change_in_env_file}
+      OTP_SALT: ${OTP_SALT:-sharvin_production_delivery_otp_salt_v1}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost}
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sharvin_network
+
+  # ----------------------------------------------------------------------------
+  # 3. SharVin Web Frontend & Nginx Reverse Proxy
+  # ----------------------------------------------------------------------------
+  client:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.client
+    container_name: sharvin_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    networks:
+      - sharvin_network
+
+# ------------------------------------------------------------------------------
+# Persistent Storage Volumes & Network Bridge
+# ------------------------------------------------------------------------------
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  sharvin_network:
+    driver: bridge
