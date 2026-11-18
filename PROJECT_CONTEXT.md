@@ -1,5 +1,14 @@
 # SharVin: Project Context & State
 
+## Session Handoff — 2026-11-18 GitHub Publication
+
+- **Current task:** Publish SharVin to `https://github.com/Harshpatel2208/SharVin`; status `DONE`.
+- **Security action:** GitHub push protection detected a Brevo API key in historical `server/.env.example` commits. The current template was sanitized to a placeholder; the secret-bearing local history was not published. The exposed Brevo key must be revoked and replaced in Brevo.
+- **Publication:** Created a clean root snapshot and published it as the previously empty repository's `main` branch. Remote snapshot commit: `ba5bab54f4b70b3ee3fb8303023d44a5a6c0d742`.
+- **Exact next task:** Rotate the Brevo key, configure production secrets outside Git, and protect the GitHub `main` branch.
+
+---
+
 ## Session Handoff — 2026-11-18 Brand Asset Integration
 
 - **Current task:** Integrate finalized SharVin visual identity across the public and authenticated client; status `DONE`.
